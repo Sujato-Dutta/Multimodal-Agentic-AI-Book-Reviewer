@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ledgera - AI-powered multimodal book reviewer. Upload a book cover and get instant reviews, confidence scores, and recommendations.">
+    <title>Ledgera – Multimodal Agentic Book Reviewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6C8 4.89543 8.89543 4 10 4H30C31.1046 4 32 4.89543 32 6V34C32 35.1046 31.1046 36 30 36H10C8.89543 36 8 35.1046 8 34V6Z" stroke="#C9A456" stroke-width="2"/>
+                    <path d="M12 4V36" stroke="#C9A456" stroke-width="1.5"/>
+                    <path d="M16 10H28" stroke="#C9A456" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M16 14H24" stroke="#C9A456" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 2L14 8H26L20 2Z" fill="#C9A456" opacity="0.8"/>
+                </svg>
+                <span>Ledgera</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+            <button class="btn-demo" id="btn-try-demo" onclick="highlightUpload()">Try Demo</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg" style="background-image: url('/static/header_bg.png')"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="hero-badge">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#C9A456"><path d="M8 0l2.1 5.3L16 6l-4.2 3.7L13 16l-5-3.2L3 16l1.2-6.3L0 6l5.9-.7L8 0z"/></svg>
+                    AI-POWERED BOOK INTELLIGENCE
+                </span>
+                <h1>Multimodal<br>Agentic Book<br>Reviewer</h1>
+                <p class="hero-subtitle">Take a pic of the cover and let<br>AI do the research for you!</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" id="btn-analyze" onclick="highlightUpload()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        Analyze a Book Cover
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload Panel -->
+            <div class="upload-panel" id="upload-panel">
+                <div class="upload-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload Book Cover
+                    <button class="upload-close" id="btn-close-upload" onclick="resetUpload()">✕</button>
+                </div>
+                <div class="upload-dropzone" id="dropzone">
+                    <div class="dropzone-content" id="dropzone-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        <p>Drag & drop a book cover image</p>
+                        <span>or</span>
+                        <div class="upload-actions">
+                            <label class="btn-upload" for="file-input" id="label-file-input">Browse Files</label>
+                            <input type="file" id="file-input" accept="image/*" hidden>
+                            <button class="btn-camera" id="btn-camera" onclick="openCamera()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                Camera
+                            </button>
+                        </div>
+                    </div>
+                    <img id="preview-image" class="preview-image" alt="Book cover preview">
+                </div>
+                <div class="upload-progress" id="upload-progress">
+                    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                    <p class="progress-text" id="progress-text">Analyzing cover, title, and author...</p>
+                </div>
+                <button class="btn-analyze-upload" id="btn-start-analyze" onclick="startAnalysis()" disabled>
+                    Analyze This Book
+                </button>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel hidden" id="results-panel">
+                <div class="results-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Analysis Complete
+                </div>
+                <div class="results-book-info">
+                    <div class="book-details">
+                        <span class="label">Detected Book</span>
+                        <h2 id="result-title">—</h2>
+                        <p id="result-author">—</p>
+                        <span class="result-category" id="result-category"></span>
+                    </div>
+                    <div class="confidence-ring" id="confidence-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" class="ring-bg"/>
+                            <circle cx="50" cy="50" r="42" class="ring-fill" id="ring-fill"/>
+                        </svg>
+                        <span class="confidence-value" id="confidence-value">0%</span>
+                        <span class="confidence-label">Confidence</span>
+                    </div>
+                </div>
+
+                <div class="results-section">
+                    <h3>Spoiler-Free Summary</h3>
+                    <p id="result-summary">—</p>
+                </div>
+
+                <div class="results-section">
+                    <h3>Best For</h3>
+                    <p id="result-best-for">—</p>
+                </div>
+
+                <div class="results-section">
+                    <h3>Not Ideal For</h3>
+                    <p id="result-not-ideal">—</p>
+                </div>
+
+                <div class="results-section">
+                    <h3>Public Sentiment</h3>
+                    <p id="result-sentiment">—</p>
+                </div>
+
+                <div class="results-section">
+                    <h3>Sources</h3>
+                    <div class="source-tags" id="result-sources"></div>
+                </div>
+
+                <div class="results-recommendation" id="result-rec-card">
+                    <div class="rec-icon" id="rec-icon">📖</div>
+                    <div class="rec-info">
+                        <strong id="rec-action">Borrow</strong>
+                        <p id="rec-reason">—</p>
+                    </div>
+                    <svg class="rec-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+
+                <div class="results-feedback">
+                    <span>Was this helpful?</span>
+                    <button class="btn-feedback" id="btn-helpful" onclick="sendFeedback('helpful')">👍 Yes</button>
+                    <button class="btn-feedback" id="btn-not-helpful" onclick="sendFeedback('not_helpful')">👎 No</button>
+                </div>
+
+                <button class="btn-new-analysis" id="btn-new" onclick="resetAll()">Analyze Another Book</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-grid">
+            <div class="feature-card" id="feature-confidence">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Source Confidence</h3>
+                    <p>We verify across multiple trusted sources so you can trust the results.</p>
+                </div>
+                <div class="feature-visual confidence-mini">
+                    <span>92%</span>
+                </div>
+            </div>
+            <div class="feature-card" id="feature-spoiler">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Spoiler-Free Summary</h3>
+                    <p>Key insights without spoilers, so the story stays unspoiled until you read it.</p>
+                </div>
+            </div>
+            <div class="feature-card" id="feature-reader">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Reader Fit</h3>
+                    <p>Personalized for your preferences, mood, and reading goals.</p>
+                </div>
+            </div>
+            <div class="feature-card" id="feature-similar">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Smart Recommendations</h3>
+                    <p>Buy, borrow, or skip — curated recommendations that match your taste.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <span class="section-label">HOW IT WORKS</span>
+        <h2>Three simple steps to smarter reading</h2>
+        <div class="steps-grid">
+            <div class="step-card" id="step-1">
+                <span class="step-number">1</span>
+                <div class="step-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                <h3>Snap the Cover</h3>
+                <p>Take a clear photo of any book cover. Our AI instantly detects the title, author, and key details.</p>
+            </div>
+            <div class="step-card" id="step-2">
+                <span class="step-number">2</span>
+                <div class="step-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <h3>Verify & Research</h3>
+                <p>We scan trusted sources, reviews, and ratings to understand what matters most.</p>
+            </div>
+            <div class="step-card" id="step-3">
+                <span class="step-number">3</span>
+                <div class="step-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A456" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h3>Get the Review</h3>
+                <p>Receive a spoiler-free summary, confidence score, and a personalized recommendation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none"><path d="M8 6C8 4.89543 8.89543 4 10 4H30C31.1046 4 32 4.89543 32 6V34C32 35.1046 31.1046 36 30 36H10C8.89543 36 8 35.1046 8 34V6Z" stroke="#C9A456" stroke-width="2"/><path d="M12 4V36" stroke="#C9A456" stroke-width="1.5"/></svg>
+                <span>Ledgera</span>
+            </div>
+            <p>AI-powered book intelligence. MIT License.</p>
+        </div>
+    </footer>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal hidden" id="camera-modal">
+        <div class="camera-container">
+            <video id="camera-video" autoplay playsinline></video>
+            <div class="camera-controls">
+                <button class="btn-capture" id="btn-capture" onclick="capturePhoto()">📸</button>
+                <button class="btn-camera-close" id="btn-camera-close" onclick="closeCamera()">✕</button>
+            </div>
+        </div>
+        <canvas id="camera-canvas" hidden></canvas>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

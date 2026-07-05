@@ -1,0 +1,12 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.git/
+.agent/
+.env
+tests/
+evals/
+*.md
+.gitignore
+.dockerignore

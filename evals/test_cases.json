@@ -1,0 +1,42 @@
+[
+    {
+        "id": "tc_001",
+        "title": "Atomic Habits",
+        "author": "James Clear",
+        "category": "Self-help",
+        "expected_recommendation": "buy",
+        "expected_keywords": ["habits", "behavior", "improvement"]
+    },
+    {
+        "id": "tc_002",
+        "title": "The Midnight Library",
+        "author": "Matt Haig",
+        "category": "Fiction",
+        "expected_recommendation": "buy",
+        "expected_keywords": ["library", "life", "choices"]
+    },
+    {
+        "id": "tc_003",
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "category": "History",
+        "expected_recommendation": "buy",
+        "expected_keywords": ["humanity", "history", "civilization"]
+    },
+    {
+        "id": "tc_004",
+        "title": "Project Hail Mary",
+        "author": "Andy Weir",
+        "category": "Science Fiction",
+        "expected_recommendation": "buy",
+        "expected_keywords": ["space", "science", "survival"]
+    },
+    {
+        "id": "tc_005",
+        "title": "Thinking, Fast and Slow",
+        "author": "Daniel Kahneman",
+        "category": "Psychology",
+        "expected_recommendation": "buy",
+        "expected_keywords": ["thinking", "decision", "cognitive"]
+    }
+]
