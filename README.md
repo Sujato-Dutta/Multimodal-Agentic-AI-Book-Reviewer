@@ -143,12 +143,85 @@ python -m evals.eval_runner
 - p50/p95 latency
 - End-to-end success rate
 
+## Monitoring & Observability
+
+The app exposes Prometheus-format metrics at `GET /metrics` (mounted via `prometheus_client.make_asgi_app()` in `main.py`).
+
+### Metrics Exposed
+
+| Metric | Type | Labels | What It Tracks |
+|--------|------|--------|----------------|
+| `ledgera_request_duration_seconds` | Histogram | `endpoint`, `method` | End-to-end request latency |
+| `ledgera_requests_total` | Counter | `endpoint`, `method`, `status` | Total request count by status code |
+| `ledgera_api_errors_total` | Counter | `source`, `error_type` | Errors from Gemini, Google Books, etc. |
+| `ledgera_retrieval_failures_total` | Counter | `source` | Failed retrievals (DuckDuckGo, Google Books, Open Library) |
+| `ledgera_pipeline_stage_seconds` | Histogram | `stage` | Per-stage latency (vision, verification, retrieval, rag, review, recommendation, guardrail) |
+| `ledgera_confidence_score` | Histogram | — | Distribution of output confidence scores |
+| `ledgera_feedback_total` | Counter | `rating` | User feedback (helpful / not_helpful) |
+| `ledgera_active_analyses` | Gauge | — | Currently running analysis count |
+| `ledgera_cold_starts_total` | Counter | — | Number of app restarts |
+| `ledgera` | Info | — | App version and environment |
+
+### Viewing Locally
+
+Visit `http://localhost:8000/metrics` to see raw Prometheus text output after running the server.
+
+### Grafana Cloud (Free Tier)
+
+[Grafana Cloud Free](https://grafana.com/products/cloud/) includes Prometheus, Grafana dashboards, and 10k metrics series.
+
+**Setup steps:**
+
+1. **Sign up** at [grafana.com/products/cloud](https://grafana.com/products/cloud/) (free forever tier)
+2. **Get your remote write endpoint** from the Grafana Cloud Portal → Prometheus → Details. You'll get:
+   - Remote write URL (e.g. `https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push`)
+   - Username (numeric ID)
+   - API key (generate one under API Keys)
+3. **Run Grafana Alloy (agent)** alongside your backend to scrape `/metrics` and push to Grafana Cloud:
+   ```bash
+   # docker-compose.yml addition
+   alloy:
+     image: grafana/alloy:latest
+     volumes:
+       - ./alloy-config.alloy:/etc/alloy/config.alloy
+     command: ["run", "/etc/alloy/config.alloy"]
+   ```
+4. **Alloy config** (`alloy-config.alloy`):
+   ```hcl
+   prometheus.scrape "ledgera" {
+     targets = [{"__address__" = "ledgera-backend:8000"}]
+     metrics_path = "/metrics"
+     scrape_interval = "15s"
+     forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+   }
+
+   prometheus.remote_write "grafana_cloud" {
+     endpoint {
+       url = "<YOUR_REMOTE_WRITE_URL>"
+       basic_auth {
+         username = "<YOUR_GRAFANA_CLOUD_USERNAME>"
+         password = "<YOUR_GRAFANA_CLOUD_API_KEY>"
+       }
+     }
+   }
+   ```
+5. **Build dashboards** in Grafana Cloud using the `ledgera_*` metric names listed above.
+
+### Suggested Dashboard Panels
+
+- **Pipeline Latency Heatmap** — `histogram_quantile(0.95, rate(ledgera_pipeline_stage_seconds_bucket[5m]))` grouped by `stage`
+- **Error Rate** — `rate(ledgera_api_errors_total[5m])` grouped by `source`
+- **Request Throughput** — `rate(ledgera_requests_total[5m])`
+- **Confidence Distribution** — `histogram_quantile(0.5, ledgera_confidence_score_bucket)`
+- **Active Analyses** — `ledgera_active_analyses`
+- **Feedback Ratio** — `ledgera_feedback_total` by `rating`
+
 ## Deployment
 
 ### Frontend (Vercel)
 Deploy the `frontend/` directory to Vercel. Update API base URL in `app.js`.
 
-### Backend (Northflank)
+### Backend (Northflank / Docker)
 Build and deploy using the included `Dockerfile`:
 ```bash
 docker build -t ledgera .
