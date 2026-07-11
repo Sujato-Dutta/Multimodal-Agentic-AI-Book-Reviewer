@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS confidence_scores (
 
 CREATE TABLE IF NOT EXISTS feedback (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    book_id UUID REFERENCES detected_books(id) ON DELETE CASCADE,
+    book_id TEXT,
     rating TEXT CHECK (rating IN ('helpful', 'not_helpful')),
     comment TEXT,
     created_at TIMESTAMPTZ DEFAULT now()
